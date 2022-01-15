@@ -1,0 +1,11 @@
+pip
+setuptools
+wheel
+pydantic
+coverage
+pytest
+pytest-cov
+pytest-sugar
+pytest-xdist
+pytest-html
+flake8
