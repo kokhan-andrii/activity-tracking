@@ -1,14 +1,15 @@
-from typing import Optional, Union
+from typing import Optional, Union, List
 
-from tracker.activity import Activity
+from tracking.activity import Activity
 
 
 class Tracker:
     def __init__(self):
-        self._activities = []
+        self._activities: List[Activity] = list()
         self._activity = None
 
-    def list_activities(self) -> Optional[list[Activity]]:
+    @property
+    def activities(self) -> List[Activity]:
         return self._activities
 
     @property
@@ -23,20 +24,21 @@ class Tracker:
         self._activity = new_activity
         self._activities.append(self._activity)
 
-    def find(self, search_str: str, exact_match: bool = True) -> Union[list[Activity], Activity]:
+    def find(self, search_str: str, exact_match: bool = True) -> Union[List[Activity], Activity]:
         # activities = [activity for activity in self._activities
         # if by in activity.details.name or by in activity.assignee]
-        activities = []
+        activities: Union[List[Activity], Activity] = []
         if not search_str:
             print(f'Search string has invalid value:<{search_str}>.')
             return activities
         else:
             search_str = search_str.strip()
 
-        for activity in self.list_activities():
+        for activity in self.activities:
             if exact_match:
-                if search_str == activity.details.name or search_str == activity.assignee:
-                    activities.append(activity)
+                if activity.details:
+                    if search_str == activity.details.name or search_str == activity.assignee:
+                        activities.append(activity)
             else:
                 if search_str in activity.details.name or search_str in activity.assignee:
                     activities.append(activity)
@@ -45,3 +47,6 @@ class Tracker:
             if len(activities) == 1:
                 return activities[0]
         return activities
+
+    def __repr__(self):
+        return f'<Tracker {self.activities}>'

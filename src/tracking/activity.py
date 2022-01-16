@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Final, Optional
+from typing import Optional
 from uuid import uuid4, UUID
 
 
 @dataclass
 class ActivityDetails:
-    __id: Final[UUID] = uuid4()
+    __id: UUID = uuid4()
     name: Optional[str] = ''
 
 

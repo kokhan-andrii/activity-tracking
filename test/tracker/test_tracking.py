@@ -1,7 +1,7 @@
 import pytest
 
-from tracker.activity import ActivityDetails, Activity
-from tracker.tracker import Tracker
+from tracking.activity import ActivityDetails, Activity
+from tracking.tracker import Tracker
 
 
 @pytest.fixture
@@ -33,13 +33,15 @@ def tracker(activity) -> Tracker:
 def tracker_with_activity(activity) -> Tracker:
     tracker = Tracker()
     tracker.activity = activity
+    print('tracker_with_activity', tracker)
     return tracker
 
 
 def test_create_activity(activity, tracker):
     tracker.activity = activity
     assert tracker.activity
-    assert tracker.list_activities()
+    print('\ntracker.activities: ', tracker.activities)
+    assert tracker.activities
 
 
 def test_create_none_activity(tracker):
@@ -97,7 +99,7 @@ def test_list_all_activities(activities, tracker):
     for activity in activities:
         print(activity)
         tracker.activity = activity
-    tracked_activities: list[Activity] = tracker.list_activities()
+    tracked_activities: list[Activity] = tracker.activities
     print(tracked_activities)
     assert len(tracked_activities) == 3
 
@@ -105,7 +107,7 @@ def test_list_all_activities(activities, tracker):
 def test_update_activity(activity, tracker):
     assert activity.details.name == 'Jogging'
     tracker.activity = activity
-    before_activities = tracker.list_activities()
+    before_activities = tracker.activities
 
     tracker2: Tracker = Tracker()
     tracker2.activity = Activity(
@@ -118,5 +120,5 @@ def test_update_activity(activity, tracker):
     )
     assert tracker2.activity.details.name == 'Evening Jogging'
 
-    after_activities = tracker2.list_activities()
+    after_activities = tracker2.activities
     assert before_activities[0].details.name != after_activities[0].details.name
