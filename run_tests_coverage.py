@@ -1,9 +1,13 @@
 import subprocess
 
+import sys
+
+print(f'Running with Python {sys.version_info}.')
+
 subprocess.run('pytest --cov=src -vvv '
-               '--cov-report=term-missing -n4 '
-               '--force-sugar -p no:cacheprovider '
-               '--html=reports/pytest_report/index.html test')
+               '--cov-report=term-missing  '
+               '-p no:cacheprovider '
+               '--html=./reports/pytest_report/index.html test')
 
 subprocess.run('flake8 --tee . --output-file=./reports/flake8-report.txt')
 
