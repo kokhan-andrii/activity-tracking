@@ -1,8 +1,9 @@
 """Attempt to resolve library version conflict."""
 import json
+import re
 import subprocess
 import sys
-from typing import Union, List, re
+from typing import Union, List
 from urllib import request
 
 # import pytest
@@ -33,25 +34,16 @@ def install(package_name, next_version) -> ResolvedVersion:
     return 0
 
 
-def list_package_releases(package_name) -> list:
+def __list_package_releases(package_name) -> list:
     """."""
     url = f'https://pypi.python.org/pypi/{package_name}/json'
     releases = json.loads(request.urlopen(url).read())['releases']
     return releases
 
 
-def _get_release_versions(package_name):
+def get_latest_version(releases) -> Version:
     """."""
-    output = subprocess.run(
-        [sys.executable, '-m', 'pip', 'index', 'versions', f'{package_name}'], stdout=subprocess.PIPE)
-    return output
-
-
-def get_latest_version(package_name) -> Version:
-    """."""
-    output = _get_release_versions(package_name)
-    print('get_latest_version: ',output )
-    version = str(output.stdout).split(r'\r\n')[3].strip().split(':')[1].split()[0]
+    version = max(key for key in releases.keys() if not 'rc' in key)
     pattern = re.compile(r'\d.\d.\d')
     format_expected = pattern.match(version)
     assert format_expected, ValueError(f'{version} has unexpected version format, <major.minor.micro> is expected.')
@@ -61,7 +53,8 @@ def get_latest_version(package_name) -> Version:
 
 def get_installed_version(package_name):
     """."""
-    output = _get_release_versions(package_name)
+    output = subprocess.run(
+        [sys.executable, '-m', 'pip', 'show', f'{package_name}'], stdout=subprocess.PIPE)
     version = str(output.stdout).split(r'\r\n')[2].strip().split(':')[1].split()[0]
     return Version(version)
 
@@ -71,7 +64,7 @@ def get_next_micro_version(release):
     return release.micro + 1
 
 
-def get_micro_version(release):
+def get_micro_version(release: Version) -> int:
     """."""
     return release.micro
 
@@ -102,25 +95,25 @@ def attemp_resolve(package_name, installed_version: Version, candidate_version: 
         f'Invalid candidate_version type {type(candidate_version)}, expected packaging.version.Version'
 
     # collect all version for this package
-    releases = list_package_releases(package_name)
+    releases = __list_package_releases(package_name)
     assert installed_version.base_version in releases, f'{installed_version} is not in {releases}'
     assert candidate_version.base_version in releases, f'{candidate_version} is not in {releases}'
 
     # only dealing with candidate version greater than installed
     # retrieve the latest version fo the package
-    latest_release_version = get_latest_version(package_name)
+    latest_release_version = Version('6.9.9') # get_latest_version(releases)
 
     if candidate_version.base_version == installed_version.base_version:
         raise RuntimeWarning(
             f'No resolution required: {candidate_version.base_version} {installed_version.base_version}')
-
+    '''
     assert get_micro_version(installed_version) < get_micro_version(
         latest_release_version), 'Installed version should be less than latest release version.'
     assert get_micro_version(candidate_version) < get_micro_version(
         latest_release_version), 'Candidate release version should be less that latest release version.'
     assert get_micro_version(candidate_version) > get_micro_version(
         installed_version), 'Only dealing with candidate versions greater than installed.'
-
+    '''
     # order release version in descending order,
     # TODO is it really necessary to sort?
     release_versions = sorted(releases, reverse=True)
@@ -131,7 +124,7 @@ def attemp_resolve(package_name, installed_version: Version, candidate_version: 
     latest_releases = sorted(latest_releases, reverse=False)
     for next_release in latest_releases:
         result = install(package_name, next_release)
-        if not result:  # resolution needed, install next version
+        if result > 0:  # resolution needed, install next version
             continue
         else:
             installed_version = next_release
@@ -198,4 +191,5 @@ print(len(reqs_as_dict))
 """
 if __name__ == '__main__':
     print('try resolve')
-    attemp_resolve('pytest', Version('6.2.1'), Version('6.2.5'))
+    resolved_version = attemp_resolve('pytest', Version('6.2.1'), Version('6.2.5'))
+    print('resolved version', resolved_version)
