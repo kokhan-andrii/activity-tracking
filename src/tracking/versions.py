@@ -138,7 +138,7 @@ def attemp_resolve(package_name, installed_version: Version, candidate_version: 
 
     return Version(installed_version)
 
-
+"""
 import re
 from pathlib import Path
 from pprint import pprint
@@ -193,5 +193,6 @@ reqs_as_dict = requirements_as_dict(all_requirement_txt_path)
 pprint(reqs_as_dict)
 print(len(reqs_as_dict))
 
+"""
 if '__name__' == '__main__':
     attemp_resolve('pytest', Version('6.2.0'), Version('6.2.5'))
