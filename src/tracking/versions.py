@@ -5,10 +5,9 @@ import sys
 from typing import Union, List, re
 from urllib import request
 
-#import pytest
-#from _pytest.config import ExitCode
+# import pytest
+# from _pytest.config import ExitCode
 from packaging.version import InvalidVersion, Version
-from pkg_resources import parse_version
 
 ResolvedVersion = Union[Version, InvalidVersion, RuntimeWarning]
 
@@ -21,6 +20,7 @@ def run_tests(package_name, failed_version):
         retcode = pytest.main()
     return retcode
 """
+
 
 def install(package_name, next_version) -> ResolvedVersion:
     """."""
@@ -122,12 +122,12 @@ def attemp_resolve(package_name, installed_version: Version, candidate_version: 
 
     # order release version in descending order,
     # TODO is it really necessary to sort?
-    release_versions = sorted(releases, key=parse_version, reverse=True)
+    release_versions = sorted(releases, reverse=True)
 
     # deal with only the latest release versions, installed version + 1 .. latest version
     releases_diff = get_micro_version(latest_release_version) - get_micro_version(candidate_version)
     latest_releases: List[str] = get_latest_releases(release_versions, releases_diff)
-    latest_releases = sorted(latest_releases, key=parse_version, reverse=False)
+    latest_releases = sorted(latest_releases, reverse=False)
     for next_release in latest_releases:
         result = install(package_name, next_release)
         if not result:  # resolution needed, install next version
@@ -137,6 +137,7 @@ def attemp_resolve(package_name, installed_version: Version, candidate_version: 
             break
 
     return Version(installed_version)
+
 
 """
 import re
