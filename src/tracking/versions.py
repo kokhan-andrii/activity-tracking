@@ -196,4 +196,5 @@ print(len(reqs_as_dict))
 
 """
 if '__name__' == '__main__':
+    print('try resolve')
     attemp_resolve('pytest', Version('6.2.1'), Version('6.2.5'))
