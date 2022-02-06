@@ -1,9 +1,8 @@
 """Attempt to resolve library version conflict."""
 import json
-import re
 import subprocess
 import sys
-from typing import Union, List
+from typing import Union
 from urllib import request
 
 import pytest
@@ -139,6 +138,7 @@ def attemp_resolve(package_name, installed_version: Version, candidate_version: 
 
     return Version(installed_version)
 
+
 import re
 from pathlib import Path
 from pprint import pprint
@@ -194,4 +194,5 @@ pprint(reqs_as_dict)
 print(len(reqs_as_dict))
 
 if '__name__' == '__main__':
+    install('pytest', Version('6.2.0'))
     attemp_resolve('pytest', Version('6.2.0'), Version('6.2.5'))
