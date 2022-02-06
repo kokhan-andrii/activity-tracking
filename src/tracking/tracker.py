@@ -37,10 +37,10 @@ class Tracker:
         for activity in self.activities:
             if exact_match:
                 if activity.details:
-                    if search_str == activity.details.name or search_str == activity.assignee:
+                    if search_str == activity.details.activity_name or search_str == activity.assignee:
                         activities.append(activity)
             else:
-                if search_str in activity.details.name or search_str in activity.assignee:
+                if search_str in activity.details.activity_name or search_str in activity.assignee:
                     activities.append(activity)
 
         if activities:

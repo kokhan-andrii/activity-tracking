@@ -1,20 +1,25 @@
-from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Final
 from uuid import uuid4, UUID
 
-
-@dataclass
-class ActivityDetails:
-    __id: UUID = uuid4()
-    name: Optional[str] = ''
+from pydantic import validator, BaseModel
 
 
-@dataclass(order=True)
-class Activity:
-    details: Optional[ActivityDetails]
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-    topic: Optional[str] = None
-    done: bool = False
+class ActivityDetails(BaseModel):
+    activity_name: str
+    __id: Final[UUID] = uuid4()
     assignee: str = 'me'
+
+
+class Activity(BaseModel):
+    details: ActivityDetails
+    start_date: datetime = None
+    end_date: datetime = None
+    topic: str = None
+    done: bool = False
+
+
+    @validator('details')
+    def activity_details_not_null(cls, value):
+        if value is None:
+            raise ValueError("ActivityDetails is mandatory to set.")
