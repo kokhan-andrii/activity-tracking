@@ -109,14 +109,14 @@ def attempt_resolve(package_name, installed_version: str, candidate_version: str
     if candidate_version.base_version == installed_version.base_version:
         raise RuntimeWarning(
             f'No resolution required: {candidate_version.base_version} {installed_version.base_version}')
-    '''
+
     assert get_micro_version(installed_version) < get_micro_version(
         latest_release_version), 'Installed version should be less than latest release version.'
     assert get_micro_version(candidate_version) < get_micro_version(
         latest_release_version), 'Candidate release version should be less that latest release version.'
     assert get_micro_version(candidate_version) > get_micro_version(
         installed_version), 'Only dealing with candidate versions greater than installed.'
-    '''
+
     # order release version in descending order,
     # TODO is it really necessary to sort?
     release_versions = sorted(releases, reverse=True)
