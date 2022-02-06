@@ -23,9 +23,9 @@ def run_tests(package_name, failed_version):
 """
 
 
-def install(package_name, next_version) -> ResolvedVersion:
+def install(package_name, next_version) -> int:
     """."""
-    if next_version in ['6.2.1', '6.2.2']:
+    if next_version in ['6.2.4', '6.2.2']:
         return 1
     try:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', f'{package_name}=={next_version}'])
@@ -84,8 +84,11 @@ def get_latest_releases(release_versions, releases_diff) -> list:
     return release_versions[:releases_diff + 2]
 
 
-def attemp_resolve(package_name, installed_version: Version, candidate_version: Version) -> ResolvedVersion:
+def attempt_resolve(package_name, installed_version: str, candidate_version: str) -> ResolvedVersion:
     """."""
+    installed_version = Version(installed_version)
+    candidate_version = Version(candidate_version)
+
     assert package_name is not None, f'Invalid package name {package_name}'
     assert isinstance(package_name, str), f'Invalid package name type {package_name}'
     assert len(package_name) > 2, f'Invalid package name {package_name}'
@@ -101,7 +104,7 @@ def attemp_resolve(package_name, installed_version: Version, candidate_version: 
 
     # only dealing with candidate version greater than installed
     # retrieve the latest version fo the package
-    latest_release_version = Version('6.9.9') # get_latest_version(releases)
+    latest_release_version = Version('6.9.9')  # get_latest_version(releases)
 
     if candidate_version.base_version == installed_version.base_version:
         raise RuntimeWarning(
@@ -190,6 +193,9 @@ print(len(reqs_as_dict))
 
 """
 if __name__ == '__main__':
-    print('try resolve')
-    resolved_version = attemp_resolve('pytest', Version('6.2.1'), Version('6.2.5'))
-    print('resolved version', resolved_version)
+    print('try resolve if necessary')
+    installed = '6.2.3'
+    candidate = '6.2.5'
+    resolved_version: ResolvedVersion = attempt_resolve('pytest', installed, candidate)
+    print('resolved version', resolved_version, 'candidate_version', candidate, 'installed_version',
+          installed)
