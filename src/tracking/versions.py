@@ -2,7 +2,7 @@
 import json
 import subprocess
 import sys
-from typing import Union
+from typing import Union, List, re
 from urllib import request
 
 import pytest
@@ -24,12 +24,12 @@ def run_tests(package_name, failed_version):
 
 def install(package_name, next_version) -> ResolvedVersion:
     """."""
-    if next_version in ['6.2.2', '6.2.3', '6.2.4']:
+    if next_version in ['6.2.1', '6.2.2']:
         return 1
     try:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', f'{package_name}=={next_version}'])
     except subprocess.CalledProcessError as error:
-        raise Exception(error)
+        raise InvalidVersion(error)
     return 0
 
 
@@ -195,4 +195,4 @@ print(len(reqs_as_dict))
 
 """
 if '__name__' == '__main__':
-    attemp_resolve('pytest', Version('6.2.0'), Version('6.2.5'))
+    attemp_resolve('pytest', Version('6.2.1'), Version('6.2.5'))
