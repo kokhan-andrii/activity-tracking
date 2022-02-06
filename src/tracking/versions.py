@@ -5,22 +5,22 @@ import sys
 from typing import Union, List, re
 from urllib import request
 
-import pytest
-from _pytest.config import ExitCode
+#import pytest
+#from _pytest.config import ExitCode
 from packaging.version import InvalidVersion, Version
 from pkg_resources import parse_version
 
 ResolvedVersion = Union[Version, InvalidVersion, RuntimeWarning]
 
-
+"""
 def run_tests(package_name, failed_version):
-    """."""
+    
     retcode = pytest.main()
     if ExitCode.TESTS_FAILED:
         attemp_resolve(package_name, failed_version)
         retcode = pytest.main()
     return retcode
-
+"""
 
 def install(package_name, next_version) -> ResolvedVersion:
     """."""
