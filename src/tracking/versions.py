@@ -50,6 +50,7 @@ def _get_release_versions(package_name):
 def get_latest_version(package_name) -> Version:
     """."""
     output = _get_release_versions(package_name)
+    print('get_latest_version: ',output )
     version = str(output.stdout).split(r'\r\n')[3].strip().split(':')[1].split()[0]
     pattern = re.compile(r'\d.\d.\d')
     format_expected = pattern.match(version)
