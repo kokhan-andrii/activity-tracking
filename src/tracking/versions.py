@@ -194,5 +194,4 @@ pprint(reqs_as_dict)
 print(len(reqs_as_dict))
 
 if '__name__' == '__main__':
-    install('pytest', Version('6.2.0'))
     attemp_resolve('pytest', Version('6.2.0'), Version('6.2.5'))
