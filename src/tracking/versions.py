@@ -166,9 +166,9 @@ print(len(reqs_as_dict))
 """
 
 if __name__ == '__main__':
-    print('try resolve if necessary')
-    installed = '6.2.3'
-    candidate = '6.2.5'
+    print('Attempting resolve if necessary...')
+    installed = '6.2.1'
+    candidate = '7.0.0'
     resolved_version: ResolvedVersion = attempt_resolve('pytest', installed, candidate)
     print('resolved version', resolved_version, 'candidate_version', candidate, 'installed_version',
           installed)
