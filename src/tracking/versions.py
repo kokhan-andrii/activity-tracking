@@ -1,6 +1,5 @@
 """Attempt to resolve library version conflict."""
 import json
-import re
 import subprocess
 import sys
 from typing import Union, List
@@ -41,16 +40,6 @@ def __list_package_releases(package_name) -> list:
     return releases
 
 
-def get_latest_version(releases) -> Version:
-    """."""
-    version = max(key for key in releases.keys() if not 'rc' in key)
-    pattern = re.compile(r'\d.\d.\d')
-    format_expected = pattern.match(version)
-    assert format_expected, ValueError(f'{version} has unexpected version format, <major.minor.micro> is expected.')
-
-    return Version(version)
-
-
 def get_installed_version(package_name):
     """."""
     output = subprocess.run(
@@ -59,35 +48,12 @@ def get_installed_version(package_name):
     return Version(version)
 
 
-def get_next_micro_version(release):
-    """."""
-    return release.micro + 1
-
-
-def get_micro_version(release: Version) -> int:
-    """."""
-    return release.micro
-
-
-def get_minor_version(release: Version) -> int:
-    """."""
-    return release.minor
-
-
-def get_major_version(release: Version) -> int:
-    """."""
-    return release.major
-
-
-def get_latest_releases(release_versions, releases_diff) -> list:
-    """."""
-    return release_versions[:releases_diff + 2]
-
-
 def attempt_resolve(package_name, installed_version: str, candidate_version: str) -> ResolvedVersion:
     """."""
     installed_version = Version(installed_version)
     candidate_version = Version(candidate_version)
+
+    print('installed_version:', installed_version, ' candidate_version:', candidate_version)
 
     assert package_name is not None, f'Invalid package name {package_name}'
     assert isinstance(package_name, str), f'Invalid package name type {package_name}'
@@ -104,28 +70,25 @@ def attempt_resolve(package_name, installed_version: str, candidate_version: str
 
     # only dealing with candidate version greater than installed
     # retrieve the latest version fo the package
-    latest_release_version = Version('6.9.9')  # get_latest_version(releases)
+    latest_release_version = Version(max(releases))  # get_latest_version(releases)
 
-    if candidate_version.base_version == installed_version.base_version:
+    if candidate_version == installed_version:
         raise RuntimeWarning(
             f'No resolution required: {candidate_version.base_version} {installed_version.base_version}')
 
-    assert get_micro_version(installed_version) < get_micro_version(
-        latest_release_version), 'Installed version should be less than latest release version.'
-    assert get_micro_version(candidate_version) < get_micro_version(
-        latest_release_version), 'Candidate release version should be less that latest release version.'
-    assert get_micro_version(candidate_version) > get_micro_version(
-        installed_version), 'Only dealing with candidate versions greater than installed.'
+    assert installed_version < latest_release_version, 'Installed version should be less than latest release version.'
+    assert candidate_version < latest_release_version, 'Candidate version should be less that latest release version.'
+    assert candidate_version > installed_version, 'Only dealing with candidate versions greater than installed.'
 
     # order release version in descending order,
-    # TODO is it really necessary to sort?
     release_versions = sorted(releases, reverse=True)
 
     # deal with only the latest release versions, installed version + 1 .. latest version
-    releases_diff = get_micro_version(latest_release_version) - get_micro_version(candidate_version)
-    latest_releases: List[str] = get_latest_releases(release_versions, releases_diff)
-    latest_releases = sorted(latest_releases, reverse=False)
-    for next_release in latest_releases:
+
+    top = top_releases(installed_version, release_versions)
+
+    latest_releases: List[str] = release_versions[:top]
+    for next_release in sorted(latest_releases):
         result = install(package_name, next_release)
         if result > 0:  # resolution needed, install next version
             continue
@@ -134,6 +97,15 @@ def attempt_resolve(package_name, installed_version: str, candidate_version: str
             break
 
     return Version(installed_version)
+
+
+def top_releases(installed_version, release_versions):
+    top: int = 0
+    for count, item in enumerate(release_versions):
+        if Version(item) == installed_version:
+            top = count
+            break
+    return top
 
 
 """
@@ -192,6 +164,7 @@ pprint(reqs_as_dict)
 print(len(reqs_as_dict))
 
 """
+
 if __name__ == '__main__':
     print('try resolve if necessary')
     installed = '6.2.3'
